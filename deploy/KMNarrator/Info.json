@@ -1,0 +1,10 @@
+{
+  "Id": "KMNarrator",
+  "DisplayName": "KM Narrator",
+  "Author": "Marius Bjercke",
+  "Version": "0.1.0",
+  "ManagerVersion": "0.22.0",
+  "GameVersion": "2.1.7b",
+  "AssemblyName": "KMNarrator.dll",
+  "EntryMethod": "KMNarrator.Main.Load"
+}

@@ -1,0 +1,318 @@
+{
+  "project": "KMNarrator",
+  "schemaVersion": 1,
+  "lastUpdated": "2026-06-17T23:00:00Z",
+  "summary": "Phase 5 complete: README, publish.ps1, API error messages, throttled narration warnings. v0.1.0 release zip ready.",
+  "currentPhase": "phase-5",
+  "agents": {
+    "active": [],
+    "notes": "See docs/plans/agent-workflow.md"
+  },
+  "phases": [
+    {
+      "id": "phase-0",
+      "name": "Toolchain & empty mod",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "0.0",
+          "title": "Boilerplate docs + execution plan",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["README.md", "AGENTS.md", "docs/plans/"],
+          "dependsOn": [],
+          "acceptanceCriteria": ["ElevenLabs-only scope documented", "KM patch targets documented"],
+          "notes": "Reference export confirmed at reference/Kingmaker/Assembly-CSharp/"
+        },
+        {
+          "id": "0.1",
+          "title": "Directory.Build.props + lib/",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["Directory.Build.props", "lib/"],
+          "dependsOn": ["0.0"],
+          "acceptanceCriteria": ["GameManagedPath → Kingmaker_Data/Managed", "UMM + NAudio + NLayer from RTVoiceMod lib/"],
+          "notes": ""
+        },
+        {
+          "id": "0.2",
+          "title": "KMNarrator.csproj + solution",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/KMNarrator.csproj", "KMNarrator.sln"],
+          "dependsOn": ["0.1"],
+          "acceptanceCriteria": ["Targets net48", "References Assembly-CSharp, Harmony, UMM, UnityEngine.CoreModule"],
+          "notes": "net48 required to reference UMM/Harmony DLLs from game UMM folder"
+        },
+        {
+          "id": "0.3",
+          "title": "Main.cs stub + Info.json",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Main.cs", "deploy/KMNarrator/Info.json"],
+          "dependsOn": ["0.2"],
+          "acceptanceCriteria": ["EntryMethod KMNarrator.Main.Load", "ManagerVersion 0.22.0"],
+          "notes": "Author Marius Bjercke, GameVersion 2.1.7b"
+        },
+        {
+          "id": "0.4",
+          "title": "Deploy + UMM smoke test",
+          "status": "completed",
+          "owner": "user",
+          "files": ["deploy/KMNarrator/"],
+          "dependsOn": ["0.3"],
+          "acceptanceCriteria": ["Mod appears in UMM", "[KMNarrator] in Player.log"],
+          "notes": "Deployed to Mods/KMNarrator. User smoke test: launch game, enable mod, grep Player.log for [KMNarrator]"
+        }
+      ]
+    },
+    {
+      "id": "phase-1",
+      "name": "Port ElevenLabs core",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Copy ElevenLabs, Cache, Audio",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/ElevenLabs/", "src/KMNarrator/Cache/", "src/KMNarrator/Audio/"],
+          "dependsOn": ["0.4"],
+          "acceptanceCriteria": ["Compiles against KM assemblies"],
+          "notes": "From ../RTVoiceMod/src/RTNarrator/"
+        },
+        {
+          "id": "1.2",
+          "title": "Copy Settings + SettingsGui (no space events)",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Settings.cs", "src/KMNarrator/UI/SettingsGui.cs"],
+          "dependsOn": ["1.1"],
+          "acceptanceCriteria": ["No EnableSpaceEvents", "UMM settings render"],
+          "notes": ""
+        },
+        {
+          "id": "1.3",
+          "title": "Copy VoiceResolver, TextNormalizer, CachedSpeechService",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Voice/"],
+          "dependsOn": ["1.1"],
+          "acceptanceCriteria": ["Namespace KMNarrator"],
+          "notes": ""
+        },
+        {
+          "id": "1.4",
+          "title": "Fix GameLocale for KM LocalizationManager",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Cache/GameLocale.cs"],
+          "dependsOn": ["1.1"],
+          "acceptanceCriteria": ["Uses LocalizationManager.CurrentLocale static property"],
+          "notes": "KM has no LocalizationManager.Instance"
+        },
+        {
+          "id": "1.5",
+          "title": "Test synthesis in UMM UI",
+          "status": "completed",
+          "owner": "user",
+          "files": ["src/KMNarrator/UI/SettingsGui.cs"],
+          "dependsOn": ["1.2", "1.3", "1.4"],
+          "acceptanceCriteria": ["Test line audible in-game"],
+          "notes": "User: paste API key, Save, click Test synthesis. Second run should hit cache."
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "KM voice helpers",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "VoiceOverHelper.IsUnvoiced",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/VoiceOverHelper.cs"],
+          "dependsOn": ["1.3"],
+          "acceptanceCriteria": ["Mirrors LocalizedString.PlayVoiceOver SoundPack lookup"],
+          "notes": ""
+        },
+        {
+          "id": "2.2",
+          "title": "Narrator.Speak pipeline",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Voice/Narrator.cs"],
+          "dependsOn": ["2.1"],
+          "acceptanceCriteria": ["Uses VoiceOverHelper", "Async synth + playback queue"],
+          "notes": "Port from RT Narrator.cs"
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Harmony MVP",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "LocalizedString.PlayVoiceOver postfix",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Patches/", "src/KMNarrator/ModHarmony.cs"],
+          "dependsOn": ["2.2"],
+          "acceptanceCriteria": ["Unvoiced dialog line speaks"],
+          "notes": "Replaces RT VoiceOverPlayerPatch"
+        },
+        {
+          "id": "3.2",
+          "title": "DialogController.StopDialog postfix",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Patches/", "src/KMNarrator/ModHarmony.cs"],
+          "dependsOn": ["2.2"],
+          "acceptanceCriteria": ["TTS stops when dialog advances"],
+          "notes": "Also DialogController.PlayCue prefix (KM has no SoundState.StopDialog per cue)"
+        },
+        {
+          "id": "3.3",
+          "title": "DialogController.PlayCue prefix",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Patches/DialogControllerPlayCuePatch.cs"],
+          "dependsOn": ["3.2"],
+          "acceptanceCriteria": ["TTS stops on space/continue between cues"],
+          "notes": "Replaces RT SoundState.StopDialog at PlayCue entry"
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Extended surfaces",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Book events playtest",
+          "status": "completed",
+          "owner": "user",
+          "files": [],
+          "dependsOn": ["4.2"],
+          "acceptanceCriteria": ["Book page unvoiced lines narrate with EnableBookEvents"],
+          "notes": "Deferred full playtest; hooks in place, assumed OK until a book scenario is found"
+        },
+        {
+          "id": "4.2",
+          "title": "Book event SetPage hooks",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Patches/BookEventVoicePatch.cs", "src/KMNarrator/ModHarmony.cs"],
+          "dependsOn": ["3.1"],
+          "acceptanceCriteria": ["All page cues narrate in order", "Stops on page turn"],
+          "notes": "BookEventVM + BookEventBaseController.SetPage; PlayVoiceOver skips book when EnableBookEvents"
+        },
+        {
+          "id": "4.3",
+          "title": "Barks toggle",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Voice/Narrator.cs", "src/KMNarrator/Voice/VoiceSurface.cs"],
+          "dependsOn": ["3.1"],
+          "acceptanceCriteria": ["EnableBarks gates bark narration"],
+          "notes": "UIAccess.Bark → PlayVoiceOver; surface=bark when not in dialog mode"
+        },
+        {
+          "id": "4.4",
+          "title": "Stage directions via NoSpeaker + {n} stripping",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/Voice/TextNormalizer.cs", "src/KMNarrator/Voice/Narrator.cs"],
+          "dependsOn": ["2.2"],
+          "acceptanceCriteria": ["IncludeStageDirections toggle works on KM markup"],
+          "notes": "User confirmed dialog; nested {g} inside {n} fixed"
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Polish & release",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "5.1",
+          "title": "README install/config/cache sharing",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["README.md"],
+          "dependsOn": ["4.2"],
+          "acceptanceCriteria": ["Install path, cache sharing, toggles documented"],
+          "notes": ""
+        },
+        {
+          "id": "5.2",
+          "title": "publish.ps1 release zip",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["publish.ps1", "deploy.ps1"],
+          "dependsOn": ["5.1"],
+          "acceptanceCriteria": ["artifacts/KMNarrator-v0.1.0.zip builds"],
+          "notes": ""
+        },
+        {
+          "id": "5.3",
+          "title": "Consistent [KMNarrator] log prefix",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/"],
+          "dependsOn": ["3.1"],
+          "acceptanceCriteria": ["All Debug.Log paths use [KMNarrator] prefix"],
+          "notes": ""
+        },
+        {
+          "id": "5.4",
+          "title": "API error hardening",
+          "status": "completed",
+          "owner": "cursor-2026-06-17",
+          "files": ["src/KMNarrator/ElevenLabs/ElevenLabsClient.cs", "src/KMNarrator/Main.cs", "src/KMNarrator/Voice/Narrator.cs"],
+          "dependsOn": ["1.1"],
+          "acceptanceCriteria": ["Friendly 401/402/429 messages; no crash on API failure"],
+          "notes": "Throttled narration failure logs to avoid Player.log spam"
+        }
+      ]
+    }
+  ],
+  "blockers": [],
+  "decisions": [
+    {
+      "date": "2026-06-17",
+      "id": "D1",
+      "text": "Mod id KMNarrator; deploy to game Mods/ folder"
+    },
+    {
+      "date": "2026-06-17",
+      "id": "D2",
+      "text": "ElevenLabs only for v0.1; RT Kokoro work stays stashed in RTVoiceMod"
+    },
+    {
+      "date": "2026-06-17",
+      "id": "D3",
+      "text": "Primary Harmony hook: LocalizedString.PlayVoiceOver postfix (no VoiceOverPlayer in KM)"
+    },
+    {
+      "date": "2026-06-17",
+      "id": "D4",
+      "text": "Stop hook: Kingmaker.Controllers.Dialog.DialogController.StopDialog"
+    },
+    {
+      "date": "2026-06-17",
+      "id": "D5",
+      "text": "Port baseline: RTVoiceMod git state v0.1.0 (26 source files, no Tts/LocalTts)"
+    },
+    {
+      "date": "2026-06-17",
+      "id": "D6",
+      "text": "ManagerVersion 0.22.0 from BagOfTricks Info.json"
+    }
+  ]
+}

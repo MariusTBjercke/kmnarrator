@@ -1,0 +1,46 @@
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+
+# Visual Studio / Rider caches
+.vs/
+.idea/
+_ReSharper*/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+packages/
+
+# Decompiled game assemblies + other mods used only as local reference (copyrighted, large)
+reference/
+
+# UMM / template reference DLLs (download via lib/README.md)
+lib/UnityModManagerDlls/
+lib/NAudio/
+lib/NLayer/
+lib/NAudio/
+lib/NLayer/
+tools/
+
+# Generated voice cache (share locally; do not commit audio)
+**/cache/**/*.mp3
+**/cache/**/*.wav
+**/cache/manifest.json
+deploy/KMNarrator/cache/**/*.mp3
+deploy/KMNarrator/cache/**/*.wav
+deploy/KMNarrator/cache/manifest.json
+
+# Build artifacts copied into the deploy folder (keep Info.json; DLLs come from build)
+deploy/KMNarrator/*.dll
+deploy/KMNarrator/*.pdb

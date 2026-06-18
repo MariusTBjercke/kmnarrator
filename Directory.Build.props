@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <GameManagedPath>D:\SteamLibrary\steamapps\common\Pathfinder Kingmaker\Kingmaker_Data\Managed</GameManagedPath>
+    <LibPath>$(MSBuildThisFileDirectory)lib</LibPath>
+    <DeployModPath>$(MSBuildThisFileDirectory)deploy\KMNarrator</DeployModPath>
+  </PropertyGroup>
+</Project>
